@@ -1,32 +1,28 @@
 import React from "react";
-import {
-  AppstoreOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  ShopOutlined,
-  TeamOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Layout, Menu, theme } from "antd";
+import { Routes, Route, Link } from "react-router-dom";
+import Admin from "./components/Admin";
+import CsvImport from "./components/CsvImport";
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
-const items: MenuProps["items"] = [
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  AppstoreOutlined,
-  TeamOutlined,
-  ShopOutlined,
-].map((icon, index) => ({
+const itemDetails = [
+  {
+    icon: UserOutlined,
+    label: <Link to="/admin">Admin</Link>,
+  },
+  {
+    icon: VideoCameraOutlined,
+    label: <Link to="/csvimport">CsvImport</Link>,
+  },
+];
+
+const items: MenuProps["items"] = itemDetails.map((detail, index) => ({
   key: String(index + 1),
-  icon: React.createElement(icon),
-  label: `nav ${index + 1}`,
+  icon: React.createElement(detail.icon),
+  label: detail.label,
 }));
 
 const App: React.FC = () => {
@@ -72,21 +68,12 @@ const App: React.FC = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            <p>long content</p>
-            {
-              // indicates very long content
-              Array.from({ length: 100 }, (_, index) => (
-                <React.Fragment key={index}>
-                  {index % 20 === 0 && index ? "more" : "..."}
-                  <br />
-                </React.Fragment>
-              ))
-            }
+            <Routes>
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/csvimport" element={<CsvImport />} />
+            </Routes>
           </div>
         </Content>
-        <Footer style={{ textAlign: "center" }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
       </Layout>
     </Layout>
   );
