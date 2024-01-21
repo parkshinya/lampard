@@ -1,6 +1,6 @@
 import React from "react";
 
-const CsvImport = () => {
+const CsvImport: React.FC = () => {
   return (
     <div>
       <h1>CsvImport</h1>
