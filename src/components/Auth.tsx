@@ -10,12 +10,12 @@ const onFinishFailed = (errorInfo: any) => {
 };
 
 type FieldType = {
-  username: string;
+  email: string;
   password: string;
 };
 
 const Auth: React.FC = () => (
-  <div style={{ height: "100vh", width: "100%", position: "absolute" }}>
+  <div style={{ height: "100vh", width: "100%", position: "relative" }}>
     <Form
       name="basic"
       labelCol={{ span: 8 }}
@@ -32,11 +32,11 @@ const Auth: React.FC = () => (
       autoComplete="off"
     >
       <Form.Item<FieldType>
-        label="Username"
-        name="username"
-        rules={[{ required: true, message: "Please input your username!" }]}
+        label="email"
+        name="email"
+        rules={[{ required: true, message: "Please input your email!" }]}
       >
-        <Input />
+        <Input type="email" />
       </Form.Item>
 
       <Form.Item<FieldType>
