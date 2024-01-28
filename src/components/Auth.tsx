@@ -1,31 +1,21 @@
 import React, { useState } from "react";
 import { Button, Form, Input } from "antd";
-import { auth, db } from "../firebase";
-import { createUserWithEmailAndPassword } from "@firebase/auth";
-import { collection, addDoc } from "firebase/firestore";
+import { auth } from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 type FieldType = {
-  userName: string;
-  company: string;
   email: string;
   password: string;
 };
 
-const Admin: React.FC = () => {
+const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
-  const registerNewUser = async (newUser: FieldType) => {
+  const onFinish = async (loginUser: FieldType) => {
     setLoading(true);
-    await createUserWithEmailAndPassword(auth, newUser.email, newUser.password)
-      .then(async (userCredential) => {
-        await addDoc(collection(db, "users"), {
-          uid: userCredential.user.uid,
-          company: newUser.company,
-          userName: newUser.userName,
-        });
-      })
-      .then(() => setLoading(false))
-      .catch((err) => alert(err.message));
+    await signInWithEmailAndPassword(auth, loginUser.email, loginUser.password)
+      .catch((err) => alert(err.message))
+      .then(() => setLoading(false));
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -45,24 +35,10 @@ const Admin: React.FC = () => {
           left: "40%",
           textAlign: "right",
         }}
-        onFinish={registerNewUser}
+        onFinish={onFinish}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
       >
-        <Form.Item<FieldType>
-          label="username"
-          name="userName"
-          rules={[{ required: true, message: "Please input your username" }]}
-        >
-          <Input type="text" />
-        </Form.Item>
-        <Form.Item<FieldType>
-          label="company"
-          name="company"
-          rules={[{ required: true, message: "Please input your company" }]}
-        >
-          <Input type="text" />
-        </Form.Item>
         <Form.Item<FieldType>
           label="email"
           name="email"
@@ -80,7 +56,7 @@ const Admin: React.FC = () => {
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit" loading={loading}>
-            Register
+            Submit
           </Button>
         </Form.Item>
       </Form>
@@ -88,4 +64,4 @@ const Admin: React.FC = () => {
   );
 };
 
-export default Admin;
+export default Auth;

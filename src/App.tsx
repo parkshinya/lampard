@@ -1,81 +1,65 @@
-import React from "react";
-import { UserOutlined, VideoCameraOutlined } from "@ant-design/icons";
-import type { MenuProps } from "antd";
-import { Layout, Menu, theme } from "antd";
-import { Routes, Route, Link } from "react-router-dom";
-import Admin from "./components/Admin";
-import CsvImport from "./components/CsvImport";
-
-const { Header, Content, Sider } = Layout;
-
-const itemDetails = [
-  {
-    icon: UserOutlined,
-    label: <Link to="/admin">Admin</Link>,
-  },
-  {
-    icon: VideoCameraOutlined,
-    label: <Link to="/csvimport">CsvImport</Link>,
-  },
-];
-
-const items: MenuProps["items"] = itemDetails.map((detail, index) => ({
-  key: String(index + 1),
-  icon: React.createElement(detail.icon),
-  label: detail.label,
-}));
+import React, { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "./app/hooks";
+import MainDisplay from "./components/MainDisplay";
+import Auth from "./components/Auth";
+import {
+  login,
+  selectAuthUser,
+  logout,
+  AuthUserState,
+} from "./features/user/authUserSlice";
+import { Navigate, Routes, Route } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "./firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 const App: React.FC = () => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+  const [loading, setLoading] = useState(false);
+  const storeUser = useAppSelector(selectAuthUser);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const allUserData: AuthUserState[] = [];
+      const usersQuerySnapShot = await getDocs(collection(db, "users"));
+      usersQuerySnapShot.forEach((doc) =>
+        allUserData.push(doc.data() as AuthUserState)
+      );
+      return allUserData;
+    };
+    const checkAuthUser = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        fetchUsers().then((dbUsers) => {
+          const authUser = dbUsers.find(
+            (dbUser) => dbUser.uid === firebaseUser.uid
+          );
+
+          dispatch(login(authUser!));
+        });
+        setLoading(true);
+      } else {
+        dispatch(logout());
+        setLoading(true);
+      }
+      return () => checkAuthUser();
+    });
+  }, [dispatch]);
+
+  if (!loading) return <></>;
 
   return (
-    <Layout hasSider>
-      <Sider
-        style={{
-          overflow: "auto",
-          height: "100vh",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
-        }}
-      >
-        <div className="demo-logo-vertical" />
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={["4"]}
-          items={items}
-        />
-      </Sider>
-      <Layout style={{ marginLeft: 200 }}>
-        <Header
-          style={{
-            padding: 0,
-            // background: colorBgContainer,
-            width: "100%",
-            position: "fixed",
-          }}
-        ></Header>
-        <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
-          <div
-            style={{
-              padding: 24,
-              textAlign: "center",
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <Routes>
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/csvimport" element={<CsvImport />} />
-            </Routes>
-          </div>
-        </Content>
-      </Layout>
-    </Layout>
+    <Routes>
+      <Route
+        path="*"
+        element={
+          storeUser.uid ? <MainDisplay /> : <Navigate replace to="/auth" />
+        }
+      />
+      <Route
+        path="/auth"
+        element={storeUser.uid ? <Navigate replace to="/" /> : <Auth />}
+      />
+    </Routes>
   );
 };
 
