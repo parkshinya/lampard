@@ -5,7 +5,7 @@ import { createUserWithEmailAndPassword } from "@firebase/auth";
 import { collection, addDoc } from "firebase/firestore";
 
 type FieldType = {
-  username: string;
+  userName: string;
   company: string;
   email: string;
   password: string;
@@ -14,14 +14,14 @@ type FieldType = {
 const Admin: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
-  const onFinish = async (newUser: FieldType) => {
+  const registerNewUser = async (newUser: FieldType) => {
     setLoading(true);
     await createUserWithEmailAndPassword(auth, newUser.email, newUser.password)
       .then(async (userCredential) => {
         await addDoc(collection(db, "users"), {
           uid: userCredential.user.uid,
           company: newUser.company,
-          username: newUser.username,
+          userName: newUser.userName,
         });
       })
       .then(() => setLoading(false))
@@ -45,13 +45,13 @@ const Admin: React.FC = () => {
           left: "40%",
           textAlign: "right",
         }}
-        onFinish={onFinish}
+        onFinish={registerNewUser}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
       >
         <Form.Item<FieldType>
           label="username"
-          name="username"
+          name="userName"
           rules={[{ required: true, message: "Please input your username" }]}
         >
           <Input type="text" />

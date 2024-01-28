@@ -1,17 +1,15 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 
-interface AuthUserState {
+export interface AuthUserState {
   uid: string;
-  status: "idle" | "loading" | "failed";
-  name: string;
+  userName: string;
   company: string;
 }
 
 const initialState: AuthUserState = {
   uid: "",
-  status: "idle",
-  name: "",
+  userName: "",
   company: "",
 };
 
@@ -19,8 +17,11 @@ export const authUserSlice = createSlice({
   name: "authUser",
   initialState,
   reducers: {
-    login: (state, action) => {
-      state = action.payload;
+    login: (state, action: PayloadAction<AuthUserState>) => {
+      const { uid, company, userName } = action.payload;
+      state.uid = uid;
+      state.company = company;
+      state.userName = userName;
     },
     logout: (state) => {
       state = initialState;

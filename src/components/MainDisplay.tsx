@@ -5,6 +5,8 @@ import { Layout, Menu, theme } from "antd";
 import { Routes, Route, Link } from "react-router-dom";
 import Admin from "./Admin";
 import CsvImport from "./CsvImport";
+import { useAppSelector } from "../app/hooks";
+import { selectAuthUser } from "../features/user/authUserSlice";
 
 const { Header, Content, Sider } = Layout;
 
@@ -26,6 +28,7 @@ const items: MenuProps["items"] = itemDetails.map((detail, index) => ({
 }));
 
 const MainDisplay: React.FC = () => {
+  const authUser = useAppSelector(selectAuthUser);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -58,7 +61,9 @@ const MainDisplay: React.FC = () => {
             width: "100%",
             position: "fixed",
           }}
-        ></Header>
+        >
+          {authUser.userName}
+        </Header>
         <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
           <div
             style={{
